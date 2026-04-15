@@ -1,0 +1,67 @@
+{
+  "products": [
+    {
+      "id": "claude-pro",
+      "name": "Claude PRO",
+      "subtitle": "Professional tier subscription",
+      "price": "$10",
+      "minPieces": 10,
+      "stock": 132,
+      "buttonLabel": "Add to Cart",
+      "tag": "Most popular option"
+    },
+    {
+      "id": "claude-max5",
+      "name": "Claude MAX X5",
+      "subtitle": "Maximum tier with 5 seats",
+      "price": "$32",
+      "minPieces": 5,
+      "stock": 84,
+      "buttonLabel": "Add to Cart",
+      "tag": "Team access package"
+    },
+    {
+      "id": "claude-max20",
+      "name": "Claude X20",
+      "subtitle": "Maximum tier with 20 seats",
+      "price": "$62",
+      "minPieces": 5,
+      "stock": 13,
+      "buttonLabel": "Add to Cart",
+      "tag": "Best AI in Claude"
+    },    
+    {
+      "id": "cursor-pro",
+      "name": "Cursor PRO",
+      "subtitle": "Professional tier subscription",
+      "price": "$9",
+      "minPieces": 10,
+      "stock": 151,
+      "buttonLabel": "Add to Cart",
+      "tag": "Most popular option"
+    },
+    {
+      "id": "cursor-proplus",
+      "name": "Cursor PRO PLUS",
+      "subtitle": "Better than Pro",
+      "price": "$23",
+      "minPieces": 5,
+      "stock": 95,
+      "buttonLabel": "Add to Cart",
+      "tag": "Advanced features included"
+    },
+    {
+      "id": "cursor-ultra",
+      "name": "Cursor ULTRA",
+      "subtitle": "Ultimate tier in Cursor",
+      "price": "$69",
+      "minPieces": 5,
+      "stock": 62,
+      "buttonLabel": "Add to Cart",
+      "tag": "Best AI in Cursor"
+    }
+  ],
+  "history": [
+
+  ]
+}

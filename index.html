@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Product Store</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <main class="page-shell">
+    <div class="top-glow" aria-hidden="true"></div>
+
+    <section class="store-panel">
+      <div class="section-header-row">
+        <header class="section-header">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M7 7V5.75A2.75 2.75 0 0 1 9.75 3h4.5A2.75 2.75 0 0 1 17 5.75V7" />
+              <path d="M4.5 9.5h15l-.9 8.2A3 3 0 0 1 15.62 20H8.38A3 3 0 0 1 5.4 17.7L4.5 9.5Z" />
+              <path d="M9.25 12.5h5.5" />
+            </svg>
+          </span>
+          <div>
+            <p class="eyebrow">Digital inventory</p>
+            <h1>Available Products</h1>
+          </div>
+        </header>
+      </div>
+
+      <div class="storefront-layout">
+        <div id="product-grid" class="product-grid"></div>
+
+        <aside id="cart-panel" class="cart-panel">
+          <div class="cart-panel-header">
+            <div>
+              <p class="eyebrow">Quick order</p>
+              <h2>Your Cart</h2>
+            </div>
+          </div>
+
+          <div id="cart-content" class="cart-content"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="store-panel history-panel">
+      <header class="section-header">
+        <span class="section-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M7 4.75h10" />
+            <path d="M12 4.75V19.25" />
+            <path d="M6.75 13.5 12 19.25l5.25-5.75" />
+          </svg>
+        </span>
+        <div>
+          <p class="eyebrow">Recent orders</p>
+          <h2>Purchase History</h2>
+        </div>
+      </header>
+
+      <div id="history-list" class="history-list"></div>
+    </section>
+  </main>
+
+  <div id="payment-modal" class="payment-modal" hidden>
+    <div id="payment-backdrop" class="payment-backdrop"></div>
+    <section class="payment-dialog" role="dialog" aria-modal="true" aria-labelledby="payment-title">
+      <button id="close-payment-modal" class="payment-close" type="button" aria-label="Close payment popup">×</button>
+
+      <div class="payment-dialog-content">
+        <div class="payment-qr-block">
+          <img
+            class="payment-qr-image"
+            src="assets/data/bep20_address.png"
+            alt="USDT BEP20 QR code"
+          >
+        </div>
+
+        <div class="payment-info-block">
+          <p class="eyebrow">USDT BEP20 payment</p>
+          <h2 id="payment-title">Scan QR Or Copy Address</h2>
+          <p class="payment-copy-note">Please use the BEP20 network to transfer the correct wallet address below.</p>
+
+          <div class="payment-address-box">
+            <span id="payment-address" class="payment-address">0x8a67ffaCe14E1c8646c6061ee0dF9F38Cc13a8F8</span>
+          </div>
+
+          <div class="payment-actions">
+            <button id="copy-address-button" class="cart-action" type="button">Copy Address</button>
+          </div>
+
+          <p id="copy-status" class="copy-status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="binance-modal" class="payment-modal" hidden>
+    <div id="binance-backdrop" class="payment-backdrop"></div>
+    <section class="payment-dialog binance-dialog" role="dialog" aria-modal="true" aria-labelledby="binance-title">
+      <button id="close-binance-modal" class="payment-close" type="button" aria-label="Close Binance popup">×</button>
+
+      <div class="payment-dialog-content binance-dialog-content">
+        <div class="payment-info-block">
+          <p class="eyebrow">Binance payment</p>
+          <h2 id="binance-title">Submit Your Binance Order ID</h2>
+          <div class="payment-address-box">
+            <span class="binance-id-label">Binance ID</span>
+            <span class="payment-address">363805504</span>
+          </div>
+
+          <p class="payment-copy-note">Please send the order ID or off-chain transaction reference after payment for verification.</p>
+
+          <div class="binance-form-block">
+            <label class="cart-label" for="binance-order-id">Order ID</label>
+            <input
+              id="binance-order-id"
+              class="binance-input"
+              type="text"
+              placeholder="Enter your Binance order ID"
+              autocomplete="off"
+            >
+            <button id="binance-done-button" class="cart-action" type="button">Done</button>
+          </div>
+
+          <p id="binance-status" class="copy-status" aria-live="polite"></p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
