@@ -82,10 +82,17 @@ const downloadIcon = `
   </svg>
 `;
 
+let sourceStoreData = fallbackData;
 let storeData = fallbackData;
 let selectedCartProduct = null;
 let selectedQuantity = 1;
+let activeCheckoutType = null;
+let hourlyStockRefreshTimer = null;
 const bep20Address = "0x8a67ffaCe14E1c8646c6061ee0dF9F38Cc13a8F8";
+const checkoutDelayRange = {
+  min: 2000,
+  max: 5000
+};
 
 function parsePrice(price) {
   return Number(String(price || "").replace(/[^0-9.]/g, "")) || 0;
@@ -101,6 +108,110 @@ function getMinimumQuantity(product) {
 
 function canAddToCart(product) {
   return (product.stock || 0) >= getMinimumQuantity(product);
+}
+
+function hashString(value) {
+  let hash = 0;
+
+  for (const char of String(value)) {
+    hash = ((hash << 5) - hash) + char.charCodeAt(0);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+}
+
+function getHourSeed(date = new Date()) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+    String(date.getHours()).padStart(2, "0")
+  ].join("-");
+}
+
+function getHourlyStock(product, date = new Date()) {
+  const baseStock = Math.max(Number(product.stock) || getMinimumQuantity(product), getMinimumQuantity(product));
+  const minStock = Math.max(getMinimumQuantity(product), Math.floor(baseStock * 0.4));
+  const maxStock = Math.max(minStock, Math.ceil(baseStock * 1.25));
+  const range = maxStock - minStock + 1;
+  const seed = `${product.id}-${getHourSeed(date)}`;
+
+  return minStock + (hashString(seed) % range);
+}
+
+function buildStoreDataWithHourlyStock(data) {
+  return {
+    ...data,
+    products: (data.products || []).map((product) => ({
+      ...product,
+      stock: getHourlyStock(product)
+    })),
+    history: [...(data.history || [])]
+  };
+}
+
+function syncSelectedProduct() {
+  if (!selectedCartProduct) {
+    return;
+  }
+
+  const nextSelectedProduct = (storeData.products || []).find((item) => item.id === selectedCartProduct.id);
+
+  if (!nextSelectedProduct || !canAddToCart(nextSelectedProduct)) {
+    selectedCartProduct = null;
+    selectedQuantity = 1;
+    return;
+  }
+
+  selectedCartProduct = nextSelectedProduct;
+  selectedQuantity = Math.min(selectedQuantity, nextSelectedProduct.stock);
+}
+
+function refreshHourlyStock() {
+  storeData = buildStoreDataWithHourlyStock(sourceStoreData);
+  syncSelectedProduct();
+  renderProducts(storeData.products || []);
+  renderHistory(storeData.history || []);
+  renderCart();
+}
+
+function scheduleHourlyStockRefresh() {
+  if (hourlyStockRefreshTimer) {
+    window.clearTimeout(hourlyStockRefreshTimer);
+  }
+
+  const now = new Date();
+  const nextHour = new Date(now);
+  nextHour.setMinutes(60, 0, 0);
+  const delay = nextHour.getTime() - now.getTime();
+
+  hourlyStockRefreshTimer = window.setTimeout(() => {
+    refreshHourlyStock();
+    scheduleHourlyStockRefresh();
+  }, delay);
+}
+
+function getCheckoutButtonMarkup(checkoutType, label, secondary = false) {
+  const isLoading = activeCheckoutType === checkoutType;
+  const isDisabled = Boolean(activeCheckoutType);
+  const buttonClassName = secondary
+    ? "cart-action cart-action-secondary"
+    : "cart-action";
+
+  return `
+    <button
+      class="${buttonClassName}${isLoading ? " is-loading" : ""}"
+      type="button"
+      data-checkout="${checkoutType}"
+      ${isDisabled ? "disabled" : ""}
+    >
+      <span class="cart-action-content">
+        ${isLoading ? '<span class="button-spinner" aria-hidden="true"></span>' : ""}
+        <span>${isLoading ? "Loading..." : label}</span>
+      </span>
+    </button>
+  `;
 }
 
 function getButtonLabel(product, canPurchase) {
@@ -195,8 +306,8 @@ function renderCart() {
           <strong>${formatCurrency(totalPrice)}</strong>
         </div>
         <div class="checkout-actions">
-          <button class="cart-action" type="button" data-checkout="usdt-bep20">Check Out (USDT BEP20)</button>
-          <button class="cart-action cart-action-secondary" type="button" data-checkout="binance">Check Out (Binance)</button>
+          ${getCheckoutButtonMarkup("usdt-bep20", "Check Out (USDT BEP20)")}
+          ${getCheckoutButtonMarkup("binance", "Check Out (Binance)", true)}
         </div>
       </div>
     </div>
@@ -223,6 +334,40 @@ function openBinanceModal() {
 
 function closeBinanceModal() {
   binanceModal.hidden = true;
+}
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function getCheckoutDelay() {
+  const { min, max } = checkoutDelayRange;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+async function startCheckout(checkoutType) {
+  if (activeCheckoutType || !selectedCartProduct) {
+    return;
+  }
+
+  activeCheckoutType = checkoutType;
+  renderCart();
+
+  await wait(getCheckoutDelay());
+
+  activeCheckoutType = null;
+  renderCart();
+
+  if (checkoutType === "usdt-bep20") {
+    openPaymentModal();
+    return;
+  }
+
+  if (checkoutType === "binance") {
+    openBinanceModal();
+  }
 }
 
 function fallbackCopyText(text) {
@@ -330,15 +475,14 @@ async function initStore() {
       throw new Error("Store data request failed");
     }
 
-    storeData = await response.json();
+    sourceStoreData = await response.json();
   } catch (error) {
-    storeData = fallbackData;
+    sourceStoreData = fallbackData;
     console.error(error);
   }
 
-  renderProducts(storeData.products || []);
-  renderHistory(storeData.history || []);
-  renderCart();
+  refreshHourlyStock();
+  scheduleHourlyStockRefresh();
 }
 
 productGrid.addEventListener("click", (event) => {
@@ -356,12 +500,12 @@ cartContent.addEventListener("click", (event) => {
   const checkoutButton = event.target.closest("[data-checkout]");
 
   if (checkoutButton?.dataset.checkout === "usdt-bep20") {
-    openPaymentModal();
+    startCheckout("usdt-bep20");
     return;
   }
 
   if (checkoutButton?.dataset.checkout === "binance") {
-    openBinanceModal();
+    startCheckout("binance");
     return;
   }
 

@@ -314,10 +314,38 @@ h2 {
   cursor: pointer;
 }
 
+.cart-action-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
 .cart-action-secondary {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.06));
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: none;
+}
+
+.cart-action.is-loading,
+.cart-action:disabled {
+  cursor: wait;
+  opacity: 0.9;
+}
+
+.button-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.28);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: button-spin 0.75s linear infinite;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .payment-modal {

@@ -6,7 +6,7 @@
       "subtitle": "Professional tier subscription",
       "price": "$10",
       "minPieces": 10,
-      "stock": 132,
+      "stock": 86,
       "buttonLabel": "Add to Cart",
       "tag": "Most popular option"
     },
@@ -16,7 +16,7 @@
       "subtitle": "Maximum tier with 5 seats",
       "price": "$32",
       "minPieces": 5,
-      "stock": 84,
+      "stock": 46,
       "buttonLabel": "Add to Cart",
       "tag": "Team access package"
     },
@@ -26,7 +26,7 @@
       "subtitle": "Maximum tier with 20 seats",
       "price": "$62",
       "minPieces": 5,
-      "stock": 13,
+      "stock": 33,
       "buttonLabel": "Add to Cart",
       "tag": "Best AI in Claude"
     },    
@@ -36,7 +36,7 @@
       "subtitle": "Professional tier subscription",
       "price": "$9",
       "minPieces": 10,
-      "stock": 151,
+      "stock": 91,
       "buttonLabel": "Add to Cart",
       "tag": "Most popular option"
     },
@@ -46,7 +46,7 @@
       "subtitle": "Better than Pro",
       "price": "$23",
       "minPieces": 5,
-      "stock": 95,
+      "stock": 53,
       "buttonLabel": "Add to Cart",
       "tag": "Advanced features included"
     },
@@ -56,7 +56,7 @@
       "subtitle": "Ultimate tier in Cursor",
       "price": "$69",
       "minPieces": 5,
-      "stock": 62,
+      "stock": 20,
       "buttonLabel": "Add to Cart",
       "tag": "Best AI in Cursor"
     }
