@@ -88,6 +88,7 @@ let selectedCartProduct = null;
 let selectedQuantity = 1;
 let activeCheckoutType = null;
 let hourlyStockRefreshTimer = null;
+const dailyAvailabilityCache = new Map();
 const bep20Address = "0x8a67ffaCe14E1c8646c6061ee0dF9F38Cc13a8F8";
 const checkoutDelayRange = {
   min: 2000,
@@ -130,7 +131,53 @@ function getHourSeed(date = new Date()) {
   ].join("-");
 }
 
+function getDaySeed(date = new Date()) {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0")
+  ].join("-");
+}
+
+function createSeededRandom(seed) {
+  let state = hashString(seed) || 1;
+
+  return () => {
+    state = (state * 1664525 + 1013904223) % 4294967296;
+    return state / 4294967296;
+  };
+}
+
+function getInStockHoursForDay(product, date = new Date()) {
+  const daySeed = getDaySeed(date);
+  const cacheKey = `${product.id}-${daySeed}`;
+
+  if (dailyAvailabilityCache.has(cacheKey)) {
+    return dailyAvailabilityCache.get(cacheKey);
+  }
+
+  const random = createSeededRandom(cacheKey);
+  const hours = Array.from({ length: 24 }, (_, hour) => hour);
+
+  for (let index = hours.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(random() * (index + 1));
+    [hours[index], hours[swapIndex]] = [hours[swapIndex], hours[index]];
+  }
+
+  const inStockHours = new Set(hours.slice(0, 8));
+  dailyAvailabilityCache.set(cacheKey, inStockHours);
+  return inStockHours;
+}
+
+function isProductInStockThisHour(product, date = new Date()) {
+  return getInStockHoursForDay(product, date).has(date.getHours());
+}
+
 function getHourlyStock(product, date = new Date()) {
+  if (!isProductInStockThisHour(product, date)) {
+    return 0;
+  }
+
   const baseStock = Math.max(Number(product.stock) || getMinimumQuantity(product), getMinimumQuantity(product));
   const minStock = Math.max(getMinimumQuantity(product), Math.floor(baseStock * 0.4));
   const maxStock = Math.max(minStock, Math.ceil(baseStock * 1.25));
