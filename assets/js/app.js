@@ -87,8 +87,9 @@ let storeData = fallbackData;
 let selectedCartProduct = null;
 let selectedQuantity = 1;
 let activeCheckoutType = null;
-let hourlyStockRefreshTimer = null;
+let stockRefreshTimer = null;
 const dailyAvailabilityCache = new Map();
+const stockRefreshIntervalMinutes = 5;
 const bep20Address = "0x8a67ffaCe14E1c8646c6061ee0dF9F38Cc13a8F8";
 const checkoutDelayRange = {
   min: 2000,
@@ -122,12 +123,15 @@ function hashString(value) {
   return Math.abs(hash);
 }
 
-function getHourSeed(date = new Date()) {
+function getFiveMinuteSeed(date = new Date()) {
+  const intervalMinute = Math.floor(date.getMinutes() / stockRefreshIntervalMinutes) * stockRefreshIntervalMinutes;
+
   return [
     date.getFullYear(),
     String(date.getMonth() + 1).padStart(2, "0"),
     String(date.getDate()).padStart(2, "0"),
-    String(date.getHours()).padStart(2, "0")
+    String(date.getHours()).padStart(2, "0"),
+    String(intervalMinute).padStart(2, "0")
   ].join("-");
 }
 
@@ -148,7 +152,12 @@ function createSeededRandom(seed) {
   };
 }
 
-function getInStockHoursForDay(product, date = new Date()) {
+function getFiveMinuteWindowIndex(date = new Date()) {
+  return (date.getHours() * (60 / stockRefreshIntervalMinutes))
+    + Math.floor(date.getMinutes() / stockRefreshIntervalMinutes);
+}
+
+function getInStockWindowsForDay(product, date = new Date()) {
   const daySeed = getDaySeed(date);
   const cacheKey = `${product.id}-${daySeed}`;
 
@@ -157,24 +166,26 @@ function getInStockHoursForDay(product, date = new Date()) {
   }
 
   const random = createSeededRandom(cacheKey);
-  const hours = Array.from({ length: 24 }, (_, hour) => hour);
+  const windowsPerDay = 24 * (60 / stockRefreshIntervalMinutes);
+  const inStockWindowCount = 12 * (60 / stockRefreshIntervalMinutes);
+  const windows = Array.from({ length: windowsPerDay }, (_, windowIndex) => windowIndex);
 
-  for (let index = hours.length - 1; index > 0; index -= 1) {
+  for (let index = windows.length - 1; index > 0; index -= 1) {
     const swapIndex = Math.floor(random() * (index + 1));
-    [hours[index], hours[swapIndex]] = [hours[swapIndex], hours[index]];
+    [windows[index], windows[swapIndex]] = [windows[swapIndex], windows[index]];
   }
 
-  const inStockHours = new Set(hours.slice(0, 8));
-  dailyAvailabilityCache.set(cacheKey, inStockHours);
-  return inStockHours;
+  const inStockWindows = new Set(windows.slice(0, inStockWindowCount));
+  dailyAvailabilityCache.set(cacheKey, inStockWindows);
+  return inStockWindows;
 }
 
-function isProductInStockThisHour(product, date = new Date()) {
-  return getInStockHoursForDay(product, date).has(date.getHours());
+function isProductInStockThisWindow(product, date = new Date()) {
+  return getInStockWindowsForDay(product, date).has(getFiveMinuteWindowIndex(date));
 }
 
-function getHourlyStock(product, date = new Date()) {
-  if (!isProductInStockThisHour(product, date)) {
+function getFiveMinuteStock(product, date = new Date()) {
+  if (!isProductInStockThisWindow(product, date)) {
     return 0;
   }
 
@@ -182,17 +193,17 @@ function getHourlyStock(product, date = new Date()) {
   const minStock = Math.max(getMinimumQuantity(product), Math.floor(baseStock * 0.4));
   const maxStock = Math.max(minStock, Math.ceil(baseStock * 1.25));
   const range = maxStock - minStock + 1;
-  const seed = `${product.id}-${getHourSeed(date)}`;
+  const seed = `${product.id}-${getFiveMinuteSeed(date)}`;
 
   return minStock + (hashString(seed) % range);
 }
 
-function buildStoreDataWithHourlyStock(data) {
+function buildStoreDataWithFiveMinuteStock(data) {
   return {
     ...data,
     products: (data.products || []).map((product) => ({
       ...product,
-      stock: getHourlyStock(product)
+      stock: getFiveMinuteStock(product)
     })),
     history: [...(data.history || [])]
   };
@@ -215,27 +226,28 @@ function syncSelectedProduct() {
   selectedQuantity = Math.min(selectedQuantity, nextSelectedProduct.stock);
 }
 
-function refreshHourlyStock() {
-  storeData = buildStoreDataWithHourlyStock(sourceStoreData);
+function refreshStock() {
+  storeData = buildStoreDataWithFiveMinuteStock(sourceStoreData);
   syncSelectedProduct();
   renderProducts(storeData.products || []);
   renderHistory(storeData.history || []);
   renderCart();
 }
 
-function scheduleHourlyStockRefresh() {
-  if (hourlyStockRefreshTimer) {
-    window.clearTimeout(hourlyStockRefreshTimer);
+function scheduleStockRefresh() {
+  if (stockRefreshTimer) {
+    window.clearTimeout(stockRefreshTimer);
   }
 
   const now = new Date();
-  const nextHour = new Date(now);
-  nextHour.setMinutes(60, 0, 0);
-  const delay = nextHour.getTime() - now.getTime();
+  const nextRefresh = new Date(now);
+  const currentInterval = Math.floor(now.getMinutes() / stockRefreshIntervalMinutes);
+  nextRefresh.setMinutes((currentInterval + 1) * stockRefreshIntervalMinutes, 0, 0);
+  const delay = nextRefresh.getTime() - now.getTime();
 
-  hourlyStockRefreshTimer = window.setTimeout(() => {
-    refreshHourlyStock();
-    scheduleHourlyStockRefresh();
+  stockRefreshTimer = window.setTimeout(() => {
+    refreshStock();
+    scheduleStockRefresh();
   }, delay);
 }
 
@@ -503,7 +515,7 @@ function renderHistory(history) {
     <article class="history-card">
       <div>
         <h3 class="card-title">${item.name}</h3>
-        <p class="history-meta">${item.date} · Qty: ${item.qty}</p>
+        <p class="history-meta">${item.date} &middot; Qty: ${item.qty}</p>
       </div>
       <div class="history-amount">${item.amount}</div>
       <button class="download-badge" type="button">
@@ -528,8 +540,8 @@ async function initStore() {
     console.error(error);
   }
 
-  refreshHourlyStock();
-  scheduleHourlyStockRefresh();
+  refreshStock();
+  scheduleStockRefresh();
 }
 
 productGrid.addEventListener("click", (event) => {
