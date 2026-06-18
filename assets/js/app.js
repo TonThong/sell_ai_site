@@ -14,6 +14,7 @@ const closeBinanceModalButton = document.getElementById("close-binance-modal");
 const binanceOrderIdInput = document.getElementById("binance-order-id");
 const binanceDoneButton = document.getElementById("binance-done-button");
 const binanceStatus = document.getElementById("binance-status");
+const shopShareButton = document.querySelector(".shop-share-button");
 
 const fallbackData = {
   products: [
@@ -480,6 +481,35 @@ function completeBinanceCheckout() {
   }, 1200);
 }
 
+async function shareStoreLink() {
+  if (!shopShareButton) {
+    return;
+  }
+
+  const originalMarkup = shopShareButton.innerHTML;
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(window.location.href);
+    } else {
+      const copied = fallbackCopyText(window.location.href);
+
+      if (!copied) {
+        throw new Error("Fallback copy failed");
+      }
+    }
+
+    shopShareButton.textContent = "Copied clipboard";
+  } catch (error) {
+    shopShareButton.textContent = "Copy failed";
+    console.error(error);
+  }
+
+  window.setTimeout(() => {
+    shopShareButton.innerHTML = originalMarkup;
+  }, 1600);
+}
+
 function syncQuantity(nextValue) {
   if (!selectedCartProduct) {
     return;
@@ -600,6 +630,7 @@ binanceOrderIdInput.addEventListener("keydown", (event) => {
     completeBinanceCheckout();
   }
 });
+shopShareButton?.addEventListener("click", shareStoreLink);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && !paymentModal.hidden) {

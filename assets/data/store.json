@@ -5,7 +5,7 @@
       "name": "Claude PRO",
       "subtitle": "Professional tier subscription",
       "price": "$8",
-      "minPieces": 10,
+      "minPieces": 20,
       "stock": 67,
       "buttonLabel": "Add to Cart",
       "tag": "Most popular option"
@@ -15,7 +15,7 @@
       "name": "Claude MAX X5",
       "subtitle": "Maximum tier with 5 seats",
       "price": "$24",
-      "minPieces": 5,
+      "minPieces": 10,
       "stock": 21,
       "buttonLabel": "Add to Cart",
       "tag": "Team access package"
@@ -35,8 +35,8 @@
       "name": "Cursor PRO",
       "subtitle": "Professional tier subscription",
       "price": "$7",
-      "minPieces": 10,
-      "stock": 43,
+      "minPieces": 20,
+      "stock": 47,
       "buttonLabel": "Add to Cart",
       "tag": "Most popular option"
     },
@@ -45,7 +45,7 @@
       "name": "Cursor PRO PLUS",
       "subtitle": "Better than Pro",
       "price": "$21",
-      "minPieces": 5,
+      "minPieces": 10,
       "stock": 21,
       "buttonLabel": "Add to Cart",
       "tag": "Advanced features included"

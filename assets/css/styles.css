@@ -53,6 +53,190 @@ button {
   background: linear-gradient(90deg, var(--accent), #2563eb, #f59e0b);
 }
 
+.shop-hero {
+  margin-top: 18px;
+  padding: 18px 20px 28px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+  box-shadow: var(--shadow);
+}
+
+.shop-profile-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.shop-avatar {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid #d8f1ff;
+  box-shadow: 0 8px 22px rgba(47, 128, 255, 0.15);
+}
+
+.shop-avatar svg {
+  width: 56px;
+  height: 56px;
+  display: block;
+}
+
+.shop-summary {
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.shop-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.shop-title-row h1 {
+  color: #444b57;
+  font-size: 1.15rem;
+  line-height: 1.25;
+  font-weight: 800;
+}
+
+.certified-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  min-height: 19px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  color: #c77b00;
+  background: #fff8dc;
+  border: 1px solid #ffec99;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.certified-badge svg {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 auto;
+}
+
+.certified-badge svg path:first-child {
+  fill: #f6b40f;
+}
+
+.certified-badge svg path:last-child {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.shop-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.shop-contact-button,
+.shop-share-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 6px 14px;
+  border-radius: 5px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.shop-contact-button {
+  color: #079421;
+  background: #effff2;
+  border: 1px dashed #98f0a9;
+}
+
+.shop-contact-button:hover {
+  background: #e4ffea;
+  border-color: #5cde76;
+}
+
+.shop-share-button {
+  color: #4c5565;
+  background: #f8fafc;
+  border: 1px dashed #d7dee8;
+  cursor: pointer;
+}
+
+.shop-share-button:hover {
+  background: #eef2f7;
+}
+
+.shop-contact-button svg,
+.shop-share-button svg {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+}
+
+.shop-contact-button svg path {
+  fill: currentColor;
+}
+
+.shop-share-button svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.shop-announcement {
+  margin-top: 26px;
+}
+
+.shop-announcement h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #3b4656;
+  font-size: 1rem;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.shop-announcement h2 span {
+  display: inline-grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #fb4c86, #7c3aed);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.shop-announcement p {
+  margin-top: 8px;
+  color: #344054;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.shop-announcement p + p {
+  margin-top: 2px;
+}
+
 .store-panel {
   margin-top: 18px;
   padding: 26px;
@@ -751,6 +935,41 @@ h2 {
   .page-shell {
     width: min(100% - 20px, 1000px);
     margin: 14px auto;
+  }
+
+  .shop-hero {
+    padding: 16px;
+  }
+
+  .shop-profile-row {
+    gap: 14px;
+  }
+
+  .shop-avatar {
+    width: 54px;
+    height: 54px;
+  }
+
+  .shop-avatar svg {
+    width: 48px;
+    height: 48px;
+  }
+
+  .shop-title-row h1 {
+    font-size: 1rem;
+  }
+
+  .shop-actions {
+    gap: 8px;
+  }
+
+  .shop-contact-button,
+  .shop-share-button {
+    padding: 6px 10px;
+  }
+
+  .shop-announcement {
+    margin-top: 22px;
   }
 
   .section-header-row {
